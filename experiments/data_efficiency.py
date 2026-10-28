@@ -26,17 +26,16 @@ EXPERIMENT = "data_efficiency"
 # TODO: pick training set sizes on a logarithmic scale, covering "clearly not
 # enough" through to the full set, for example [1000, 5000, 20000, 50000].
 N_TRAIN_GRID = [
-    # 1000,
-    # 5000,
-    # 20000,
-    # 50000,
+    1000,
+    10000,
+    50000,
 ]
 
 # TODO: at least two capacities are needed to see an interaction effect,
 # for example [[10], [100]].
 HIDDEN_GRID = [
-    # [10],
-    # [100],
+    [16],
+    [128],
 ]
 
 # Controlled variables.

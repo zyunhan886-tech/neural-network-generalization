@@ -27,11 +27,11 @@ EXPERIMENT = "learning_rate"
 # large enough to oscillate - which is more informative than only sampling
 # the range that works.
 ETA_GRID = [
-    # 0.01,
-    # 0.1,
-    # 1.0,
-    # 3.0,
-    # 10.0,
+    0.01,
+    0.1,
+    1.0,
+    3.0,
+    10.0,
 ]
 
 # Controlled variables - kept identical to the baseline.

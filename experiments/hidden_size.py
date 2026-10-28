@@ -27,9 +27,10 @@ EXPERIMENT = "hidden_size"
 # [[10], [30], [100]] to start with, optionally [5], [200] or a second hidden
 # layer such as [30, 30].
 HIDDEN_GRID = [
-    # [10],
-    # [30],
-    # [100],
+    [16],
+    [30],
+    [64],
+    [128],
 ]
 
 # Controlled variables - kept identical to the baseline.
