@@ -1,16 +1,19 @@
 """
-阶段 2a —— Hidden Layer Size 对照实验。
+Stage 2a - Hidden layer size.
 
-Research question: 在其它超参固定的情况下，隐藏层宽度如何影响收敛速度与
-最终 validation accuracy？是否存在收益递减的拐点？
+Research question: with every other hyper-parameter fixed, how does the width
+of the hidden layer affect convergence speed and final validation accuracy?
+Is there a point where adding more neurons stops helping?
 
-控制变量：eta、mini_batch_size、epochs、训练集大小、随机种子全部固定，
-只变 hidden size。每个配置跑多个 seed，以区分真实差异和随机波动。
+Controlled variables: eta, mini_batch_size, epochs, training set size and the
+random seeds are all held fixed; only the hidden layer size changes. Each
+configuration is run with several seeds so that a real effect can be told
+apart from random variation.
 """
 
 import argparse
-from pathlib import Path
 import sys
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -19,15 +22,17 @@ from src.mnist_loader import load_data_wrapper
 
 EXPERIMENT = "hidden_size"
 
-# TODO(你来定): 要扫哪些宽度？建议跨一个数量级才能看出拐点，
-# 例如 [[10], [30], [100]] 起步，有余力再加 [5] / [200] 或双隐藏层 [30, 30]。
+# TODO: choose the widths to compare. They should span roughly an order of
+# magnitude for the diminishing-returns point to be visible, for example
+# [[10], [30], [100]] to start with, optionally [5], [200] or a second hidden
+# layer such as [30, 30].
 HIDDEN_GRID = [
     # [10],
     # [30],
     # [100],
 ]
 
-# 控制变量 —— 与 baseline 保持一致
+# Controlled variables - kept identical to the baseline.
 ETA = 3.0
 MINI_BATCH_SIZE = 10
 
@@ -39,7 +44,7 @@ def main():
     args = parser.parse_args()
 
     if not HIDDEN_GRID:
-        sys.exit("请先在 HIDDEN_GRID 里填入要对比的隐藏层配置。")
+        sys.exit("Fill in HIDDEN_GRID with the configurations to compare first.")
 
     training_data, validation_data, _ = load_data_wrapper()
     clear_experiment(EXPERIMENT)

@@ -1,10 +1,11 @@
 """
-阶段 3 —— 从 results/metrics.csv 生成图表到 results/figures/。
+Stage 3 - Generate figures from results/metrics.csv into results/figures/.
 
-用法: python experiments/plot.py <experiment_name>
+Usage: python experiments/plot.py <experiment_name>
 
-读取部分已经写好（按 experiment 过滤、按 run_label 分组、跨 seed 取均值），
-具体要画哪些图、怎么画由你决定。
+The loading side is already written: it filters by experiment, groups runs by
+label, and averages across seeds. Which figures to draw, and how, is left to
+the analysis.
 """
 
 import csv
@@ -21,7 +22,7 @@ from src.experiment_utils import FIGURES_DIR, METRICS_CSV
 
 
 def load_curves(experiment):
-    """返回 {run_label: {epoch: [各 seed 的 accuracy]}}"""
+    """Return {run_label: {epoch: [accuracy for each seed]}}."""
     curves = defaultdict(lambda: defaultdict(list))
     with open(METRICS_CSV, newline="") as f:
         for row in csv.DictReader(f):
@@ -33,7 +34,7 @@ def load_curves(experiment):
 
 
 def mean_curve(by_epoch):
-    """跨 seed 求均值，返回 (epochs, means, stdevs)"""
+    """Average across seeds; return (epochs, means, standard deviations)."""
     epochs = sorted(by_epoch)
     means = [statistics.mean(by_epoch[e]) for e in epochs]
     stdevs = [statistics.stdev(by_epoch[e]) if len(by_epoch[e]) > 1 else 0.0
@@ -43,18 +44,20 @@ def mean_curve(by_epoch):
 
 def main():
     if len(sys.argv) < 2:
-        sys.exit("用法: python experiments/plot.py <experiment_name>")
+        sys.exit("Usage: python experiments/plot.py <experiment_name>")
     experiment = sys.argv[1]
 
     curves = load_curves(experiment)
     if not curves:
-        sys.exit(f"metrics.csv 里没有 experiment={experiment} 的数据，先去跑实验。")
+        sys.exit(f"No rows for experiment={experiment} in metrics.csv. "
+                 "Run the experiment first.")
 
     FIGURES_DIR.mkdir(parents=True, exist_ok=True)
 
-    # TODO(你来画): 下面是最朴素的训练曲线图，按需改造 ——
-    # 比如加 ±1 std 的误差带 (plt.fill_between)、改成 log x 轴、
-    # 或者对 data_efficiency 改画 "final accuracy vs n_train, 按 hidden 分组"。
+    # TODO: this is the plainest possible training curve. Extend it as needed,
+    # for example a +/- 1 standard deviation band with fill_between, a log
+    # scale on the x axis, or - for data_efficiency - a plot of final accuracy
+    # against training set size, grouped by hidden size.
     fig, ax = plt.subplots(figsize=(7, 4.5))
     for label in sorted(curves):
         epochs, means, _ = mean_curve(curves[label])
@@ -69,7 +72,7 @@ def main():
 
     out = FIGURES_DIR / f"{experiment}.png"
     fig.savefig(out, dpi=150)
-    print(f"图已保存: {out}")
+    print(f"Saved figure: {out}")
 
 
 if __name__ == "__main__":

@@ -1,17 +1,20 @@
 """
-阶段 2c —— Training Data Size × Network Capacity 二维实验。
+Stage 2c - Training set size x network capacity.
 
-Research question: 训练数据量和模型容量如何交互？具体地：
-  1. 准确率随训练样本数如何增长，什么时候开始饱和？
-  2. 大网络是否只在数据充足时才体现优势？小数据下大网络是否反而更差（过拟合）？
+Research questions:
+  1. How does validation accuracy grow with the number of training examples,
+     and where does it start to saturate?
+  2. Do larger networks only pay off once there is enough data? With little
+     data, does the larger network actually do worse because it overfits?
 
-这是本项目唯一的二维扫描 —— 结论若成立，应能在 "accuracy vs n_train，
-按 hidden size 分组" 的折线图上看到不同宽度曲线的交叉。
+This is the only two-dimensional sweep in the project. If the interaction is
+real, the curves for different hidden sizes should cross on a plot of final
+accuracy against training set size.
 """
 
 import argparse
-from pathlib import Path
 import sys
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -20,8 +23,8 @@ from src.mnist_loader import load_data_wrapper
 
 EXPERIMENT = "data_efficiency"
 
-# TODO(你来定): 训练集大小按对数尺度取点，覆盖 "明显不够" 到 "全量"。
-# 建议 [1000, 5000, 20000, 50000]。
+# TODO: pick training set sizes on a logarithmic scale, covering "clearly not
+# enough" through to the full set, for example [1000, 5000, 20000, 50000].
 N_TRAIN_GRID = [
     # 1000,
     # 5000,
@@ -29,13 +32,14 @@ N_TRAIN_GRID = [
     # 50000,
 ]
 
-# TODO(你来定): 至少两个容量档位才能看出交互效应，建议 [[10], [100]]。
+# TODO: at least two capacities are needed to see an interaction effect,
+# for example [[10], [100]].
 HIDDEN_GRID = [
     # [10],
     # [100],
 ]
 
-# 控制变量
+# Controlled variables.
 ETA = 3.0
 MINI_BATCH_SIZE = 10
 
@@ -47,13 +51,15 @@ def main():
     args = parser.parse_args()
 
     if not N_TRAIN_GRID or not HIDDEN_GRID:
-        sys.exit("请先填入 N_TRAIN_GRID 和 HIDDEN_GRID。")
+        sys.exit("Fill in N_TRAIN_GRID and HIDDEN_GRID first.")
 
     training_data, validation_data, _ = load_data_wrapper()
     clear_experiment(EXPERIMENT)
 
-    # 注意: 这里按固定前缀切片。MNIST 的训练集本身已打乱，所以前 n 条
-    # 近似类别均衡；如果想更严谨，可以改成分层抽样并在报告 Limitations 里说明。
+    # Subsets are taken as a fixed prefix. The MNIST training set is already
+    # shuffled, so the first n examples are roughly class-balanced. Stratified
+    # sampling would be stricter; this choice is noted in the report's
+    # Limitations section.
     for n_train in N_TRAIN_GRID:
         subset = training_data[:n_train]
         for hidden in HIDDEN_GRID:

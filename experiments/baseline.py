@@ -1,16 +1,18 @@
 """
-阶段 1 —— 复现 Nielsen 的基础网络，确立 baseline。
+Stage 1 - Reproduce Nielsen's baseline network.
 
-Research question: 手写实现的 784-30-10 全连接网络 + SGD，在 MNIST 上
-能否复现书中报告的 ~95% 准确率？不同随机种子之间的波动有多大？
+Research question: does a from-scratch 784-30-10 network trained with
+mini-batch SGD reproduce the ~95% validation accuracy reported in the book,
+and how much does the result vary between random seeds?
 
-注意：调参阶段一律在 validation set 上评估，test set 留到最后一次性使用，
-避免信息泄漏。
+All hyper-parameter comparisons in this project are made on the validation
+set. The test set is held out and used only once, after the final
+configuration has been chosen.
 """
 
 import argparse
-from pathlib import Path
 import sys
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -19,7 +21,7 @@ from src.mnist_loader import load_data_wrapper
 
 EXPERIMENT = "baseline"
 
-# Nielsen 书中第 1 章的标准配置
+# The standard configuration from Chapter 1 of the book.
 HIDDEN = [30]
 ETA = 3.0
 MINI_BATCH_SIZE = 10
@@ -29,10 +31,10 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--epochs", type=int, default=30)
     parser.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2],
-                        help="多个种子用来估计 run-to-run 方差")
+                        help="several seeds, to estimate run-to-run variance")
     args = parser.parse_args()
 
-    print("加载 MNIST ...")
+    print("Loading MNIST ...")
     training_data, validation_data, test_data = load_data_wrapper()
     print(f"train={len(training_data)} val={len(validation_data)} test={len(test_data)}")
 
@@ -56,7 +58,7 @@ def main():
 
     mean = sum(finals) / len(finals)
     spread = max(finals) - min(finals)
-    print("\n=== Baseline 汇总 (validation) ===")
+    print("\n=== Baseline summary (validation set) ===")
     for seed, acc in zip(args.seeds, finals):
         print(f"  seed={seed}: {acc:.4f}")
     print(f"  mean={mean:.4f}  spread={spread:.4f}")

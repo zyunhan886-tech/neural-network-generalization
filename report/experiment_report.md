@@ -1,75 +1,98 @@
-# Feed-forward Neural Networks on MNIST: A From-Scratch Reproduction and Ablation Study
+# Neural Network Generalization on MNIST: A From-Scratch Reproduction and Ablation Study
 
-**Author:** Yunhan
-**Date:** <!-- 完成日期 -->
+**Author:** Yunhan Zhang
+**Date:** <!-- fill in -->
 
 ---
 
 ## 1. Research Questions
 
 <!--
-写成可证伪的问句，不要写成 "研究一下学习率的影响"。例如：
-  RQ1 (复现) 一个从零实现的 784-30-10 网络能否复现 Nielsen 报告的 ~95% validation accuracy？
-             不同随机种子之间的波动幅度是多少？
-  RQ2 (容量) 隐藏层宽度从 10 增到 100，准确率提升是否存在收益递减的拐点？
-  RQ3 (学习率) eta 在对数尺度上变化时，训练曲线呈现哪几种定性不同的形态？
-  RQ4 (交互) 模型容量的优势是否依赖训练数据量 —— 小数据下大网络是否反而更差？
+State these as questions that could turn out either way, not as topics.
+For example:
+
+  RQ1 (reproduction) Does a from-scratch 784-30-10 network reproduce the ~95%
+      validation accuracy reported by Nielsen, and how large is the
+      seed-to-seed variation?
+  RQ2 (capacity)     As the hidden layer grows from 10 to 100 units, is there a
+      point where additional width stops improving accuracy?
+  RQ3 (learning rate) Which qualitatively different training curves appear as
+      eta is varied on a logarithmic scale?
+  RQ4 (interaction)  Does the benefit of extra capacity depend on the amount of
+      training data? Does the larger network do worse when data is scarce?
 -->
 
 ## 2. Methodology
 
 ### 2.1 Implementation
-<!-- 从零实现了什么：sigmoid 激活、二次代价函数、反向传播、mini-batch SGD。
-     明确说明只依赖 numpy 做矩阵运算，没有用任何深度学习框架。 -->
+<!-- What was written from scratch: sigmoid activation, quadratic cost,
+     backpropagation, mini-batch SGD. State explicitly that only numpy is used
+     for the array operations, with no deep learning framework. -->
 
 ### 2.2 Data
-<!-- MNIST 50,000 train / 10,000 validation / 10,000 test。
-     关键一句：所有超参对比都在 validation set 上进行，test set 仅在最终确定配置后使用一次。 -->
+<!-- MNIST: 50,000 training / 10,000 validation / 10,000 test examples.
+     Important sentence: all hyper-parameter comparisons are made on the
+     validation set, and the test set is used only once after the final
+     configuration is fixed. -->
 
 ### 2.3 Experimental Protocol
-<!-- 控制变量表：每个实验变什么、固定什么。
-     每个配置跑 3 个随机种子 (0/1/2)，报告均值与标准差。
-     固定种子同时控制权重初始化和 mini-batch 洗牌顺序。 -->
+<!-- Describe what varies and what is held constant in each experiment.
+     Each configuration is run with 3 seeds (0, 1, 2); report the mean and the
+     spread. A fixed seed controls both the weight initialisation and the
+     mini-batch shuffling order. -->
 
 | Experiment | Varied | Held constant |
 |---|---|---|
 | Baseline | — | hidden=[30], eta=3.0, batch=10, 30 epochs |
 | Hidden size | <!-- --> | <!-- --> |
 | Learning rate | <!-- --> | <!-- --> |
-| Data × capacity | <!-- --> | <!-- --> |
+| Data size x capacity | <!-- --> | <!-- --> |
 
 ## 3. Results
 
 ### 3.1 Baseline
-<!-- 最终 validation accuracy 的 mean ± std，以及收敛到多少 epoch 开始平台期。
-     和书中报告的数字对比。 -->
+<!-- Final validation accuracy as mean and spread across seeds, and the epoch
+     at which the curve flattens out. Compare with the figure reported in the
+     book. -->
 
 ### 3.2 Hidden Layer Size
-<!-- 插图: ![](../results/figures/hidden_size.png)
-     配一张表给出每个宽度的 final accuracy 和达到 90% 所需 epoch 数。 -->
+<!-- Figure: ![](../results/figures/hidden_size.png)
+     Add a small table giving, for each width, the final accuracy and the
+     number of epochs needed to reach 90%. -->
 
 ### 3.3 Learning Rate
-<!-- 插图 + 定性描述三种形态：欠步长、合适、震荡/发散。 -->
+<!-- Figure, plus a description of the qualitatively different regimes:
+     too small to make progress, well matched, and oscillating or diverging. -->
 
-### 3.4 Training Data Size × Network Capacity
-<!-- 插图 + 重点说明曲线是否交叉。 -->
+### 3.4 Training Set Size x Network Capacity
+<!-- Figure, with attention to whether the curves for different capacities
+     cross. -->
 
 ## 4. Discussion
 
-<!-- 这一节决定报告的分量。不要复述数字，要解释机制：
-     - 为什么宽度收益递减？(表达能力不再是瓶颈，瓶颈转移到优化/数据)
-     - 为什么 eta 过大会震荡？(在极小值附近来回跨越)
-     - 数据量与容量的交互说明了什么？
-     - 哪个结果和你事先的预期不符？这是最有价值的一段。 -->
+<!-- This section carries most of the weight. Do not restate the numbers;
+     explain the mechanism behind them:
+     - Why do the returns from extra width diminish? (Once representational
+       capacity is no longer the bottleneck, the limit shifts to optimisation
+       and to the amount of data.)
+     - Why does a large eta cause oscillation? (Steps overshoot the minimum
+       and the iterates bounce across it.)
+     - What does the interaction between data size and capacity suggest?
+     - Which result did not match what you expected beforehand? That is
+       usually the most valuable paragraph in the report. -->
 
 ## 5. Limitations
 
-<!-- 诚实列出，这反而加分：
-     - 只用了二次代价函数 + sigmoid，没有交叉熵 / ReLU / 正则化
-     - 每个配置只有 3 个种子，统计效力有限
-     - 没有做超参的联合搜索，各实验是单因素变化，可能错过交互效应
-     - data_efficiency 用的是固定前缀切片而非分层抽样
-     - 没有早停，固定 30 epochs 可能对不同配置不公平 -->
+<!-- Listing these honestly strengthens the report rather than weakening it:
+     - Only a quadratic cost with sigmoid units; no cross-entropy, ReLU, or
+       regularisation.
+     - Only 3 seeds per configuration, so the statistical power is limited.
+     - Each experiment varies one factor at a time, so interactions between
+       hyper-parameters other than the one studied in 3.4 are not captured.
+     - Subsets in the data-efficiency experiment are fixed prefixes rather
+       than stratified samples.
+     - No early stopping; a fixed budget of 30 epochs may not be equally fair
+       to every configuration. -->
 
 ## 6. Reproducibility
 
@@ -85,9 +108,12 @@ python experiments/data_efficiency.py
 python experiments/plot.py hidden_size
 ```
 
-原始逐 epoch 记录见 `results/metrics.csv`。
+Raw per-epoch measurements are in `results/metrics.csv`.
 
 ## References
 
-1. M. Nielsen, *Neural Networks and Deep Learning*, 2015. http://neuralnetworksanddeeplearning.com
-2. Y. LeCun et al., "Gradient-based learning applied to document recognition," *Proc. IEEE*, 1998.
+1. M. Nielsen, *Neural Networks and Deep Learning*, 2015.
+   http://neuralnetworksanddeeplearning.com
+2. Y. LeCun, L. Bottou, Y. Bengio, and P. Haffner, "Gradient-based learning
+   applied to document recognition," *Proceedings of the IEEE*, 86(11),
+   1998, pp. 2278-2324.

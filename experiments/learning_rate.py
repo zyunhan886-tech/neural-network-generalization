@@ -1,15 +1,18 @@
 """
-阶段 2b —— Learning Rate 对照实验。
+Stage 2b - Learning rate.
 
-Research question: 学习率 eta 如何影响训练曲线的形状？过小时收敛多慢，
-过大时在哪个量级开始震荡或发散？最优 eta 落在什么区间？
+Research question: how does the learning rate eta change the shape of the
+training curve? How slow is training when eta is too small, and at what order
+of magnitude does it start to oscillate or diverge? Where does the useful
+range lie?
 
-控制变量：网络结构、mini_batch_size、epochs、训练集大小固定，只变 eta。
+Controlled variables: network architecture, mini_batch_size, epochs and
+training set size are fixed; only eta changes.
 """
 
 import argparse
-from pathlib import Path
 import sys
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -18,9 +21,11 @@ from src.mnist_loader import load_data_wrapper
 
 EXPERIMENT = "learning_rate"
 
-# TODO(你来定): 学习率要按对数尺度扫，不要等间距。
-# 建议 [0.01, 0.1, 1.0, 3.0, 10.0] —— 两端要够极端，才能同时展示
-# "慢到学不动" 和 "大到震荡" 这两种失败模式，这比只扫最优区间更有说服力。
+# TODO: sweep the learning rate on a logarithmic scale rather than in equal
+# steps. Something like [0.01, 0.1, 1.0, 3.0, 10.0] works well: the extremes
+# are needed to show both failure modes - too small to make progress, and
+# large enough to oscillate - which is more informative than only sampling
+# the range that works.
 ETA_GRID = [
     # 0.01,
     # 0.1,
@@ -29,7 +34,7 @@ ETA_GRID = [
     # 10.0,
 ]
 
-# 控制变量 —— 与 baseline 保持一致
+# Controlled variables - kept identical to the baseline.
 HIDDEN = [30]
 MINI_BATCH_SIZE = 10
 
@@ -41,7 +46,7 @@ def main():
     args = parser.parse_args()
 
     if not ETA_GRID:
-        sys.exit("请先在 ETA_GRID 里填入要对比的学习率。")
+        sys.exit("Fill in ETA_GRID with the learning rates to compare first.")
 
     training_data, validation_data, _ = load_data_wrapper()
     clear_experiment(EXPERIMENT)

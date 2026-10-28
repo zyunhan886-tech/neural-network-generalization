@@ -1,48 +1,73 @@
-# MNIST Neural Network: From-Scratch Implementation & Ablation Study
+# Neural Network Generalization on MNIST: A From-Scratch Study
 
-从零实现（仅依赖 numpy）的前馈神经网络，在 MNIST 上复现并开展一组受控对照实验，
-研究**网络容量、学习率、训练数据量**对泛化性能的影响。
+A feed-forward neural network implemented from scratch in numpy, used to run a
+set of controlled experiments on how **network capacity, learning rate, and
+training set size** affect generalization on MNIST.
 
-> 自学项目。基础网络实现参考 Michael Nielsen 的
-> *[Neural Networks and Deep Learning](http://neuralnetworksanddeeplearning.com)*（MIT License），
-> 已移植到 Python 3 并重写；实验设计、指标记录、分析与报告为本人工作。
+> **Scope and attribution.** This is a self-study project. The core network
+> implementation follows Chapter 1 of Michael Nielsen's
+> *[Neural Networks and Deep Learning](http://neuralnetworksanddeeplearning.com)*
+> (MIT License); I ported it to Python 3 and rewrote it while working through
+> the derivations. The experimental design, metric logging, analysis, and
+> report are my own work. The original reference code is kept unmodified in
+> `reference/`.
 
-## What's implemented from scratch
+## Implemented from scratch
 
-- Sigmoid 激活与其导数
-- 二次代价函数及其梯度
-- 反向传播（逐层 delta 递推）
-- Mini-batch 随机梯度下降
-- 可复现的随机种子控制（权重初始化 + mini-batch 洗牌）
+- Sigmoid activation and its derivative
+- Quadratic cost function and its gradient
+- Backpropagation (layer-by-layer delta recursion)
+- Mini-batch stochastic gradient descent
+- Seed control over both weight initialisation and mini-batch shuffling
 
-无 TensorFlow / PyTorch / Keras —— 只有 numpy 的矩阵运算。
+No TensorFlow, PyTorch, or Keras — only numpy array operations.
+
+## Experiments
+
+| Experiment | Question |
+|---|---|
+| `baseline` | Does the implementation reproduce the ~95% validation accuracy reported in the book, and how much does it vary across seeds? |
+| `hidden_size` | How does hidden layer width affect convergence and final accuracy? Where do the returns diminish? |
+| `learning_rate` | How does eta change the shape of the training curve, and where are the failure modes? |
+| `data_efficiency` | Do larger networks only pay off with enough data? Does capacity hurt in the low-data regime? |
+
+## Method notes
+
+- All hyper-parameter comparisons are made on the **validation set**. The test
+  set is held out and used only once, after the final configuration is chosen.
+- Each configuration is run with several random seeds; results are reported as
+  a mean with a measure of spread, so that a real effect can be distinguished
+  from run-to-run noise.
+- Each experiment varies one factor at a time, with all remaining
+  hyper-parameters held at their baseline values.
 
 ## Results
 
-详见 [`report/experiment_report.md`](report/experiment_report.md)。
-逐 epoch 原始数据在 [`results/metrics.csv`](results/metrics.csv)，图表在 `results/figures/`。
+See [`report/experiment_report.md`](report/experiment_report.md) for the full
+write-up. Raw per-epoch measurements are in
+[`results/metrics.csv`](results/metrics.csv) and figures in `results/figures/`.
 
 ## Project structure
 
 ```
 .
 ├── src/
-│   ├── network.py            # 手写网络：前向、反向传播、SGD
-│   ├── mnist_loader.py       # MNIST 加载与预处理
-│   └── experiment_utils.py   # trial 执行 + CSV 指标记录
+│   ├── network.py            # network: forward pass, backpropagation, SGD
+│   ├── mnist_loader.py       # dataset loading and preprocessing
+│   └── experiment_utils.py   # trial runner and CSV metric logging
 ├── experiments/
-│   ├── baseline.py           # 阶段 1: 复现基础网络
-│   ├── hidden_size.py        # 阶段 2a: 容量对照
-│   ├── learning_rate.py      # 阶段 2b: 学习率对照
-│   ├── data_efficiency.py    # 阶段 2c: 数据量 × 容量
-│   └── plot.py               # 阶段 3: 出图
+│   ├── baseline.py           # stage 1: reproduce the baseline network
+│   ├── hidden_size.py        # stage 2a: capacity
+│   ├── learning_rate.py      # stage 2b: learning rate
+│   ├── data_efficiency.py    # stage 2c: data size x capacity
+│   └── plot.py               # stage 3: figures
 ├── results/
-│   ├── metrics.csv           # tidy 格式，每行 = 一个 run 的一个 epoch
+│   ├── metrics.csv           # tidy format: one row per epoch per run
 │   └── figures/
 ├── report/
 │   └── experiment_report.md
 ├── data/mnist.pkl.gz
-└── reference/                # Nielsen 原版 Python 2 代码与书中插图，仅作参考
+└── reference/                # Nielsen's original Python 2 code and book figures
 ```
 
 ## Setup
@@ -56,19 +81,15 @@ pip install -r requirements.txt
 ## Running
 
 ```bash
-python experiments/baseline.py                 # ~1.7s/epoch
-python experiments/baseline.py --epochs 10 --seeds 0   # 快速试跑
+python experiments/baseline.py                        # roughly 1.7 s per epoch
+python experiments/baseline.py --epochs 10 --seeds 0  # quick check
 python experiments/plot.py baseline
 ```
 
-每个实验脚本重跑时会自动清除自己在 `metrics.csv` 中的旧记录，不会重复累积。
-
-## Methodology notes
-
-- 所有超参对比在 **validation set** 上进行；test set 保留到最终配置确定后才使用一次。
-- 每个配置跑多个随机种子，报告均值与离散度，以区分真实效应与随机波动。
-- 各实验为单因素受控变化，其余超参与 baseline 保持一致。
+Re-running an experiment clears its own previous rows from `metrics.csv`, so
+repeated runs do not accumulate duplicates.
 
 ## License
 
-实验代码 MIT。`reference/` 下的原始代码版权归 Michael Nielsen (MIT License)。
+Experiment code is MIT licensed. The code under `reference/` is
+copyright Michael Nielsen, also MIT licensed.
