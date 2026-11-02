@@ -28,8 +28,8 @@ def load_data_wrapper():
     """
     tr_d, va_d, te_d = load_data()
 
-    training_inputs = [np.reshape(x, (784, 1)) for x in tr_d[0]]
-    training_results = [vectorized_result(y) for y in tr_d[1]]
+    training_inputs = [np.reshape(x, (784, 1)) for x in tr_d[0]]    # Reshape each 28x28 image into a 784x1 column vector
+    training_results = [vectorized_result(y) for y in tr_d[1]]      # Convert labels to one-hot vectors
     training_data = list(zip(training_inputs, training_results))
 
     validation_inputs = [np.reshape(x, (784, 1)) for x in va_d[0]]

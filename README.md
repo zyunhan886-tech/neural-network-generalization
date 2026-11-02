@@ -107,4 +107,4 @@ regularization are not implemented, so conclusions apply to this setting rather 
 
 ## Attribution
 
-The neural-network implementation is **adapted from Michael Nielsen's** [*Neural Networks and Deep Learning*](http://neuralnetworksanddeeplearning.com/chap1.html), specifically the introductory MNIST network and backpropagation code, ported to Python 3. This repository adds seed control, structured per-epoch logging, the experimental design, and the analysis.# neural-network-generalization
+The neural-network implementation is **adapted from Michael Nielsen's** [*Neural Networks and Deep Learning*](http://neuralnetworksanddeeplearning.com/chap1.html), specifically the introductory MNIST network and backpropagation code, ported to Python 3. This repository adds seed control, structured per-epoch logging, the experimental design, and the analysis.

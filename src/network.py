@@ -1,12 +1,3 @@
-"""
-A feed-forward neural network implemented from scratch with numpy only:
-sigmoid activations, a quadratic cost, backpropagation, and mini-batch SGD.
-
-The core algorithm follows Chapter 1 of Michael Nielsen's "Neural Networks and
-Deep Learning". This version is ported to Python 3 and extended with the
-per-epoch metric logging and seed control needed for controlled experiments.
-"""
-
 import random
 import time
 

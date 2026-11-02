@@ -1,11 +1,4 @@
-"""
-Shared experiment infrastructure: run a single training trial and append its
-per-epoch metrics to results/metrics.csv.
-
-All experiments share one CSV in tidy (long) format, where each row is one
-epoch of one run. This keeps the baseline, hidden_size, learning_rate and
-data_efficiency results in a single table that is easy to filter and plot.
-"""
+""" Creating neural networks, initiating training, and recording experimental results. """
 
 import csv
 import sys
@@ -15,6 +8,7 @@ ROOT = Path(__file__).resolve().parent.parent
 METRICS_CSV = ROOT / "results" / "metrics.csv"
 FIGURES_DIR = ROOT / "results" / "figures"
 
+# columns name of CSV file
 FIELDNAMES = [
     "experiment",       # which experiment, e.g. "baseline" or "hidden_size"
     "run_label",        # readable label for this configuration, e.g. "hidden=30"
@@ -37,23 +31,25 @@ def bootstrap_path():
         sys.path.insert(0, str(ROOT))
 
 
-def run_trial(experiment, training_data, evaluation_data, hidden, eta,
-              mini_batch_size, epochs, seed, run_label=None, verbose=True):
+def run_trial(experiment, training_data, evaluation_data, hidden, eta, mini_batch_size, epochs, seed, run_label=None, verbose=True):
     """Train one configuration and return rows ready to be written to CSV."""
+
+    # Determine the network architecture
     from src.network import Network
 
     hidden = list(hidden)
     sizes = [784] + hidden + [10]
-    label = run_label or "-".join(str(h) for h in hidden)
+    label = run_label or "-".join(str(h) for h in hidden)   # if no label is given, use the hidden layer sizes as a label
 
     if verbose:
         print(f"\n[{experiment}] {label}  sizes={sizes} eta={eta} "
               f"batch={mini_batch_size} n_train={len(training_data)} seed={seed}")
 
+    # Create the network and train it
     net = Network(sizes, seed=seed)
-    history = net.SGD(training_data, epochs, mini_batch_size, eta,
-                      evaluation_data=evaluation_data, verbose=verbose)
+    history = net.SGD(training_data, epochs, mini_batch_size, eta, evaluation_data=evaluation_data, verbose=verbose)
 
+    # Convert the per-epoch history into a list of rows for CSV output
     rows = []
     for rec in history:
         rows.append({
@@ -73,8 +69,8 @@ def run_trial(experiment, training_data, evaluation_data, hidden, eta,
     return rows
 
 
+# write the result to CSV file
 def append_rows(rows, path=METRICS_CSV):
-    """Append rows to the CSV, writing the header if the file is new."""
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     write_header = not path.exists() or path.stat().st_size == 0
@@ -87,10 +83,6 @@ def append_rows(rows, path=METRICS_CSV):
 
 
 def clear_experiment(experiment, path=METRICS_CSV):
-    """
-    Drop the previous records of one experiment before re-running it, so that
-    repeated runs do not accumulate duplicate rows.
-    """
     path = Path(path)
     if not path.exists():
         return

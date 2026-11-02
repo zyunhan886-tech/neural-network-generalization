@@ -40,6 +40,7 @@ def main():
 
     clear_experiment(EXPERIMENT)
 
+    # train the neural network several times with different random seeds, to estimate
     finals = []
     for seed in args.seeds:
         rows = run_trial(
@@ -53,11 +54,13 @@ def main():
             seed=seed,
             run_label=f"seed={seed}",
         )
-        append_rows(rows)
+        append_rows(rows)   # save the per-epoch history to CSV and draw training curves
         finals.append(rows[-1]["eval_accuracy"])
 
+    # Compute mean and spread of the final validation
     mean = sum(finals) / len(finals)
     spread = max(finals) - min(finals)
+
     print("\n=== Baseline summary (validation set) ===")
     for seed, acc in zip(args.seeds, finals):
         print(f"  seed={seed}: {acc:.4f}")
